@@ -4,12 +4,17 @@ A slack integration that lets you quickly create polls based on [The Decider Pro
 # Getting Started
 ## How it works
 Write a proposal for your group.
+
 ![](img/proposal.png)
 
+
 The Decider Protocol will generate the text for a poll.
+
 ![](img/generated_simple_poll_format.png)
 
+
 Which can be be copy and pasted to create a poll for the group.
+
 ![](img/simple_poll.png)
 
 ## Installation
