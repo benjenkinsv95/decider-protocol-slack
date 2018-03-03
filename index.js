@@ -40,24 +40,6 @@
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-/**
- * Define a function for initiating a conversation on installation
- * With custom integrations, we don't have a way to find out who installed us, so we can't message them :(
- */
-
-function onInstallation(bot, installer) {
-    if (installer) {
-        bot.startPrivateConversation({user: installer}, function (err, convo) {
-            if (err) {
-                console.log(err);
-            } else {
-                convo.say('I am a bot that has just joined your team');
-                convo.say('You must now /invite me to a channel so that I can be of use!');
-            }
-        });
-    }
-}
-
 /* Uses the slack button feature to offer a real time bot to multiple teams */
 var Botkit = require('botkit');
 
@@ -82,7 +64,7 @@ var controller = Botkit.slackbot(config).configureSlackApp(
     {
         clientId: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        scopes: ['commands', 'bot'],
+        scopes: ['commands']
     }
 );
 
@@ -125,7 +107,7 @@ controller.on('slash_command', function (slashCommand, message) {
                 proposal = "I propose " + proposal;
             }
 
-            var reply = "/poll \"" + proposal + "\" \":+1: Yes, I agree.\" \":-1: No, but I have an idea for something we could change to get me to agree.\" \":hand: I support the group's choice, but don't feel strongly either way.\" \":-1::-1: No, and there are no changes that would make me agree.\"";
+            var reply = "```/poll \"" + proposal + "\" \":+1: Yes, I agree.\" \":-1: No, but I have an idea for something we could change to get me to agree.\" \":hand: I support the group's choice, but don't feel strongly either way.\" \":-1::-1: No, and there are no changes that would make me agree.\"```";
             slashCommand.replyPublic(message, reply);
 
             break;
