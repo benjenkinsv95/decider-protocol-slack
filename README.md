@@ -21,7 +21,7 @@ Which can be be copy and pasted to create a poll for the group.
 ### Add Simple Poll to Slack
 Using this integration depends on **Simple Poll** to generate the poll. [Add Simple Poll to Slack Here.](https://simplepoll.rocks/)
 
-## Add The Decider Protocol to Slack
+### Add The Decider Protocol to Slack
 <a href="https://slack.com/oauth/authorize?client_id=309073724082.324845493846&scope=commands"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x" /></a>
 
 # Source Code
