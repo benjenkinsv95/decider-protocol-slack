@@ -1,5 +1,5 @@
 {
-  "name": "The Decider Protocol for Slack.",
+  "name": "thedeciderprotocol",
   "version": "1.0.0",
   "description": "A slash command to create decider protocol polls. Depends on having Simple Poll installed.",
   "main": "index.js",
