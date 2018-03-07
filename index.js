@@ -138,79 +138,29 @@ controller.on('slash_command', function (slashCommand, message) {
                 proposal = "I propose " + proposal;
             }
 
-            var reply = "{\n"
-                        + "    \"attachments\": [\n"
-                        + "        {\n"
-                        + "            \"color\": \"#009ACD\",\n"
-                        + "            \"title\": \"I propose something\",\n"
-                        + "            \"text\": \"Choices\",\n"
-                        + "            \"fields\": [\n"
-                        + "                {\n"
-                        + "                    \"title\": \":+1: I agree with the proposal.\",\n"
-                        + "                    \"value\": \"@ben\",\n"
-                        + "                    \"short\": false\n"
-                        + "                },{\n"
-                        + "                    \"title\": \":hand: I support the group's choice, but don't feel strongly either way.\",\n"
-                        + "                    \"value\": \"@wesley @michael\",\n"
-                        + "                    \"short\": false\n"
-                        + "                },\n"
-                        + "\t\t\t\t{\n"
-                        + "                    \"title\": \":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.\",\n"
-                        + "                    \"value\": \"@stephen\",\n"
-                        + "                    \"short\": false\n"
-                        + "                },\n"
-                        + "\t\t\t\t{\n"
-                        + "                    \"title\": \":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.\",\n"
-                        + "                    \"value\": \"\",\n"
-                        + "                    \"short\": false\n"
-                        + "                }\n"
-                        + "            ],\n"
-                        + "\t\t\t\"actions\": [\n"
-                        + "                {\n"
-                        + "                    \"name\": \"propose\",\n"
-                        + "                    \"text\": \":+1:\",\n"
-                        + "                    \"type\": \"button\",\n"
-                        + "\t\t\t\t\t\"style\": \"primary\",\n"
-                        + "                    \"value\": \"agree\"\n"
-                        + "                },\n"
-                        + "\t\t\t\t{\n"
-                        + "                    \"name\": \"propose\",\n"
-                        + "                    \"text\": \":hand:\",\n"
-                        + "                    \"type\": \"button\",\n"
-                        + "                    \"value\": \"neutral\"\n"
-                        + "                },\n"
-                        + "\t\t\t\t{\n"
-                        + "                    \"name\": \"propose\",\n"
-                        + "                    \"text\": \":-1:\",\n"
-                        + "                    \"type\": \"button\",\n"
-                        + "\t\t\t\t\t\"style\": \"danger\",\n"
-                        + "                    \"value\": \"disagree\",\n"
-                        + "\t\t\t\t\t\"confirm\": {\n"
-                        + "                        \"title\": \"It seems like you disagree with this proposal.\",\n"
-                        + "                        \"text\": \"You should try creating the proposal with your changes!\",\n"
-                        + "                        \"dismiss_text\": \"Ok\"\n"
-                        + "                    }\n"
-                        + "                },\n"
-                        + "                {\n"
-                        + "                    \"name\": \"propose\",\n"
-                        + "                    \"text\": \":-1: :-1:\",\n"
-                        + "                    \"style\": \"danger\",\n"
-                        + "                    \"type\": \"button\",\n"
-                        + "                    \"value\": \"abort\",\n"
-                        + "                    \"confirm\": {\n"
-                        + "                        \"title\": \"Are you sure?\",\n"
-                        + "                        \"text\": \"Are there really no changes that would get you on board with the proposal's intent?\",\n"
-                        + "                        \"ok_text\": \"Yes\",\n"
-                        + "                        \"dismiss_text\": \"No\"\n"
-                        + "                    }\n"
-                        + "                }\n"
-                        + "            ],\n"
-                        + "        \"footer\": \"A Decider Protocol Poll\",\n"
-                        + "\t\t\"ts\": 123456789\n"
-                        + "        }\n"
-                        + "    ]\n"
-                        + "}";
-            slashCommand.replyPublic(message, reply);
+            bot.reply(message, {
+                attachments:[
+                    {
+                        title: 'Do you want to interact with my buttons?',
+                        callback_id: '123',
+                        attachment_type: 'default',
+                        actions: [
+                            {
+                                "name":"yes",
+                                "text": "Yes",
+                                "value": "yes",
+                                "type": "button",
+                            },
+                            {
+                                "name":"no",
+                                "text": "No",
+                                "value": "no",
+                                "type": "button",
+                            }
+                        ]
+                    }
+                ]
+            });
 
             break;
         default:
