@@ -211,7 +211,7 @@ controller.on('slash_command', function (slashCommand, message) {
         ]
     };
             // slashCommand.replyPublic(message, attachments);
-            bot.startConversation(message, function(err, convo) {
+            slashCommand.startConversation(message, function(err, convo) {
                 convo.ask(attachments);
             });
 
