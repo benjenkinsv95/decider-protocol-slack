@@ -138,7 +138,7 @@ controller.on('slash_command', function (slashCommand, message) {
                 proposal = "I propose " + proposal;
             }
 
-            bot.reply(message, {
+            slashCommand.reply(message, {
                 attachments:[
                     {
                         title: 'Do you want to interact with my buttons?',
