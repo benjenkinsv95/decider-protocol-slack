@@ -79,8 +79,6 @@ controller.setupWebserver(process.env.PORT, function (err, webserver) {
     });
 });
 
-callback_id = 0;
-
 controller.on('slash_command', function (slashCommand, message) {
     switch (message.command) {
         case "/propose": //handle the `/echo` slash command. We might have others assigned to this app too!
@@ -143,7 +141,7 @@ controller.on('slash_command', function (slashCommand, message) {
             slashCommand.replyPublic(message, {
                 "attachments": [
                     {
-                        "callback_id": '' + callback_id++,
+                        callback_id: '123',
                         "color": "#009ACD",
                         "title": "I propose something",
                         "text": "Choices",
@@ -233,7 +231,8 @@ controller.on('interactive_message_callback', function(bot, message) {
             {
                 title: 'My buttons',
                 // callback_id: '123',
-                "callback_id": message.callback_id,
+                callback_id: '123',
+                // "callback_id": message.callback_id,
                 attachment_type: 'default',
                 actions: [
                     {
