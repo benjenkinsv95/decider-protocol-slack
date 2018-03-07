@@ -150,6 +150,7 @@ controller.on('slash_command', function (slashCommand, message) {
                 "title": "I propose something",
                 "text": "Choices",
                 replace_original: 'true',
+                'username': 'My bot',
                 "fields": [
                     {
                         "title": ":+1: I agree with the proposal.",
