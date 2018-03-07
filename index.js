@@ -111,6 +111,108 @@ controller.on('slash_command', function (slashCommand, message) {
             slashCommand.replyPublic(message, reply);
 
             break;
+
+        case "/dev-propose": //handle the `/echo` slash command. We might have others assigned to this app too!
+            // The rules are simple: If there is no text following the command, treat it as though they had requested "help"
+            // Otherwise just echo back to them what they sent us.
+
+            // but first, let's make sure the token matches!
+            if (message.token !== process.env.VERIFICATION_TOKEN) return; //just ignore it.
+
+            // if no text was supplied, treat it as a help command
+            if (message.text === "" || message.text === "help") {
+                slashCommand.replyPrivate(message,
+                    "If you type a proposal, I'll give you the text to create a simple poll." +
+                    "Try typing `/propose I propose using Spring as a backend.` to see.");
+                return;
+            }
+
+            var proposal = message.text;
+            if(proposal.startsWith("\"")){
+                proposal = proposal.substring(1, message.text.length);
+            }
+            if(proposal.endsWith("\"")){
+                proposal = proposal.substring(0, message.text.length - 1);
+            }
+            if(!proposal.toLowerCase().startsWith("i propose")){
+                proposal = "I propose " + proposal;
+            }
+
+            var reply = "{\n"
+                        + "    \"attachments\": [\n"
+                        + "        {\n"
+                        + "            \"color\": \"#009ACD\",\n"
+                        + "            \"title\": \"I propose something\",\n"
+                        + "            \"text\": \"Choices\",\n"
+                        + "            \"fields\": [\n"
+                        + "                {\n"
+                        + "                    \"title\": \":+1: I agree with the proposal.\",\n"
+                        + "                    \"value\": \"@ben\",\n"
+                        + "                    \"short\": false\n"
+                        + "                },{\n"
+                        + "                    \"title\": \":hand: I support the group's choice, but don't feel strongly either way.\",\n"
+                        + "                    \"value\": \"@wesley @michael\",\n"
+                        + "                    \"short\": false\n"
+                        + "                },\n"
+                        + "\t\t\t\t{\n"
+                        + "                    \"title\": \":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.\",\n"
+                        + "                    \"value\": \"@stephen\",\n"
+                        + "                    \"short\": false\n"
+                        + "                },\n"
+                        + "\t\t\t\t{\n"
+                        + "                    \"title\": \":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.\",\n"
+                        + "                    \"value\": \"\",\n"
+                        + "                    \"short\": false\n"
+                        + "                }\n"
+                        + "            ],\n"
+                        + "\t\t\t\"actions\": [\n"
+                        + "                {\n"
+                        + "                    \"name\": \"propose\",\n"
+                        + "                    \"text\": \":+1:\",\n"
+                        + "                    \"type\": \"button\",\n"
+                        + "\t\t\t\t\t\"style\": \"primary\",\n"
+                        + "                    \"value\": \"agree\"\n"
+                        + "                },\n"
+                        + "\t\t\t\t{\n"
+                        + "                    \"name\": \"propose\",\n"
+                        + "                    \"text\": \":hand:\",\n"
+                        + "                    \"type\": \"button\",\n"
+                        + "                    \"value\": \"neutral\"\n"
+                        + "                },\n"
+                        + "\t\t\t\t{\n"
+                        + "                    \"name\": \"propose\",\n"
+                        + "                    \"text\": \":-1:\",\n"
+                        + "                    \"type\": \"button\",\n"
+                        + "\t\t\t\t\t\"style\": \"danger\",\n"
+                        + "                    \"value\": \"disagree\",\n"
+                        + "\t\t\t\t\t\"confirm\": {\n"
+                        + "                        \"title\": \"It seems like you disagree with this proposal.\",\n"
+                        + "                        \"text\": \"You should try creating the proposal with your changes!\",\n"
+                        + "                        \"dismiss_text\": \"Ok\"\n"
+                        + "                    }\n"
+                        + "                },\n"
+                        + "                {\n"
+                        + "                    \"name\": \"propose\",\n"
+                        + "                    \"text\": \":-1: :-1:\",\n"
+                        + "                    \"style\": \"danger\",\n"
+                        + "                    \"type\": \"button\",\n"
+                        + "                    \"value\": \"abort\",\n"
+                        + "                    \"confirm\": {\n"
+                        + "                        \"title\": \"Are you sure?\",\n"
+                        + "                        \"text\": \"Are there really no changes that would get you on board with the proposal's intent?\",\n"
+                        + "                        \"ok_text\": \"Yes\",\n"
+                        + "                        \"dismiss_text\": \"No\"\n"
+                        + "                    }\n"
+                        + "                }\n"
+                        + "            ],\n"
+                        + "        \"footer\": \"A Decider Protocol Poll\",\n"
+                        + "\t\t\"ts\": 123456789\n"
+                        + "        }\n"
+                        + "    ]\n"
+                        + "}";
+            slashCommand.replyPublic(message, reply);
+
+            break;
         default:
             slashCommand.replyPublic(message, "I'm afraid I don't know how to " + message.command + " yet.");
 
