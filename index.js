@@ -230,38 +230,14 @@ controller.on('interactive_message_callback', function(bot, message) {
 
     // check message.actions and message.callback_id to see what action to take...
 
-    bot.replyInteractive(message, {
-        text: '...',
-        attachments: [
-            {
-                title: 'My buttons',
-                // callback_id: '123',
-                callback_id: '123',
-                // "callback_id": message.callback_id,
-                attachment_type: 'default',
-                actions: [
-                    {
-                        "name":"yes",
-                        "text": "Yes!",
-                        "value": "yes",
-                        "type": "button",
-                    },
-                    {
-                        "text": "No!",
-                        "name": "no",
-                        "value": "delete",
-                        "style": "danger",
-                        "type": "button",
-                        "confirm": {
-                            "title": "Are you sure?",
-                            "text": "This will do something!",
-                            "ok_text": "Yes",
-                            "dismiss_text": "No"
-                        }
-                    }
-                ]
-            }
-        ]
-    });
+    switch(callbackId) {
+        case "123":
+            bot.replyInteractive(message, "Button works!");
+            break;
+        // Add more cases here to handle for multiple buttons
+        default:
+            // For debugging
+            bot.reply(message, 'The callback ID has not been defined');
+    }
 
 });
