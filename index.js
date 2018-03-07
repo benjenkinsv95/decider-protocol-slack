@@ -237,7 +237,7 @@ controller.on('interactive_message_callback', function(bot, message) {
         // Add more cases here to handle for multiple buttons
         default:
             // For debugging
-            bot.replyPublic(message, 'The callback ID has not been defined');
+            bot.replyInteractive(message, 'The callback ID has not been defined');
     }
 
 });
