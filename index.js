@@ -66,7 +66,7 @@ var controller = Botkit.slackbot(config).configureSlackApp(
         clientSecret: process.env.CLIENT_SECRET,
         interactive_replies: true,
         // scopes: ['commands', 'bot', 'chat:write', 'post']
-        scopes: ['commands', 'bot','incoming-webhook','team:read','users:read','users.profile:read','channels:read','im:read','im:write','groups:read','emoji:read','chat:write:bot'],
+        scopes: ['commands','incoming-webhook','team:read','users:read','users.profile:read','channels:read','im:read','im:write','groups:read','emoji:read'],
     }
 );
 
