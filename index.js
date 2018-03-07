@@ -64,6 +64,7 @@ var controller = Botkit.slackbot(config).configureSlackApp(
     {
         clientId: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
+        interactive_replies: true,
         scopes: ['commands']
     }
 );
@@ -144,6 +145,7 @@ controller.on('slash_command', function (slashCommand, message) {
                 "color": "#009ACD",
                 "title": "I propose something",
                 "text": "Choices",
+                replace_original: 'true',
                 "fields": [
                     {
                         "title": ":+1: I agree with the proposal.",
