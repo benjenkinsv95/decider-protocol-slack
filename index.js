@@ -232,7 +232,8 @@ controller.on('interactive_message_callback', function(bot, message) {
         attachments: [
             {
                 title: 'My buttons',
-                callback_id: message.callback_id,
+                // callback_id: '123',
+                "callback_id": message.callback_id,
                 attachment_type: 'default',
                 actions: [
                     {
