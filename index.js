@@ -81,6 +81,9 @@ controller.setupWebserver(process.env.PORT, function (err, webserver) {
 });
 
 controller.on('slash_command', function (slashCommand, message) {
+    console.log("Slash command");
+
+
     switch (message.command) {
         case "/propose": //handle the `/echo` slash command. We might have others assigned to this app too!
             // The rules are simple: If there is no text following the command, treat it as though they had requested "help"
@@ -227,6 +230,7 @@ controller.on('slash_command', function (slashCommand, message) {
 
 // receive an interactive message, and reply with a message that will replace the original
 controller.on('interactive_message_callback', function(bot, message) {
+    console.log("Interactive message");
 
     // check message.actions and message.callback_id to see what action to take...
 
