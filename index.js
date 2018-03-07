@@ -230,14 +230,14 @@ controller.on('interactive_message_callback', function(bot, message) {
 
     // check message.actions and message.callback_id to see what action to take...
 
-    switch(callbackId) {
+    switch(message.callback_id) {
         case "123":
             bot.replyInteractive(message, "Button works!");
             break;
         // Add more cases here to handle for multiple buttons
         default:
             // For debugging
-            bot.reply(message, 'The callback ID has not been defined');
+            bot.replyPublic(message, 'The callback ID has not been defined');
     }
 
 });
