@@ -212,10 +212,10 @@ controller.on('slash_command', function (slashCommand, message) {
             }
         ]
     };
-            // slashCommand.replyPublic(message, attachments);
-            slashCommand.startConversation(message, function(err, convo) {
-                convo.ask(attachments);
-            });
+            slashCommand.replyPublic(message, attachments);
+            // slashCommand.startConversation(message, function(err, convo) {
+            //     convo.ask(attachments);
+            // });
 
             break;
         default:
