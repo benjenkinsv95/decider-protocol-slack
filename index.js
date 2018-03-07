@@ -140,7 +140,7 @@ controller.on('slash_command', function (slashCommand, message) {
 
             slashCommand.startConversation(message, function(err, convo) {
 
-                convo.ask({
+                slashCommand.ask({
                               attachments:[
                                   {
                                       title: 'Do you want to proceed?',
