@@ -65,7 +65,7 @@ var controller = Botkit.slackbot(config).configureSlackApp(
         clientId: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
         interactive_replies: true,
-        scopes: ['commands']
+        scopes: ['commands', 'chat:write', 'post']
     }
 );
 
