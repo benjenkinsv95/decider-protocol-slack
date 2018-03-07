@@ -138,53 +138,77 @@ controller.on('slash_command', function (slashCommand, message) {
                 proposal = "I propose " + proposal;
             }
 
-            slashCommand.startConversation(message, function(err, convo) {
-
-                slashCommand.ask({
-                              attachments:[
-                                  {
-                                      title: 'Do you want to proceed?',
-                                      callback_id: '123',
-                                      attachment_type: 'default',
-                                      actions: [
-                                          {
-                                              "name":"yes",
-                                              "text": "Yes",
-                                              "value": "yes",
-                                              "type": "button",
-                                          },
-                                          {
-                                              "name":"no",
-                                              "text": "No",
-                                              "value": "no",
-                                              "type": "button",
-                                          }
-                                      ]
-                                  }
-                              ]
-                          },[
-                              {
-                                  pattern: "yes",
-                                  callback: function(reply, convo) {
-                                      convo.say('FABULOUS!');
-                                      convo.next();
-                                      // do something awesome here.
-                                  }
-                              },
-                              {
-                                  pattern: "no",
-                                  callback: function(reply, convo) {
-                                      convo.say('Too bad');
-                                      convo.next();
-                                  }
-                              },
-                              {
-                                  default: true,
-                                  callback: function(reply, convo) {
-                                      // do nothing
-                                  }
-                              }
-                          ]);
+            slashCommand.replyPublic(message, {
+                "attachments": [
+                    {
+                        "color": "#009ACD",
+                        "title": "I propose something",
+                        "text": "Choices",
+                        "fields": [
+                            {
+                                "title": ":+1: I agree with the proposal.",
+                                "value": "@ben",
+                                "short": false
+                            },{
+                                "title": ":hand: I support the group's choice, but don't feel strongly either way.",
+                                "value": "@wesley @michael",
+                                "short": false
+                            },
+                            {
+                                "title": ":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.",
+                                "value": "@stephen",
+                                "short": false
+                            },
+                            {
+                                "title": ":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.",
+                                "value": "",
+                                "short": false
+                            }
+                        ],
+                        "actions": [
+                            {
+                                "name": "propose",
+                                "text": ":+1:",
+                                "type": "button",
+                                "style": "primary",
+                                "value": "agree"
+                            },
+                            {
+                                "name": "propose",
+                                "text": ":hand:",
+                                "type": "button",
+                                "value": "neutral"
+                            },
+                            {
+                                "name": "propose",
+                                "text": ":-1:",
+                                "type": "button",
+                                "style": "danger",
+                                "value": "disagree",
+                                "confirm": {
+                                    "title": "It seems like you disagree with this proposal.",
+                                    "text": "You should try creating the proposal with your changes!",
+                                    "dismiss_text": "Ok"
+                                }
+                            },
+                            {
+                                "name": "propose",
+                                "text": ":-1: :-1:",
+                                "style": "danger",
+                                "type": "button",
+                                "value": "abort",
+                                "confirm": {
+                                    "title": "Are you sure?",
+                                    "text": "Are there really no changes that would get you on board with the proposal's intent?",
+                                    "ok_text": "Yes",
+                                    "dismiss_text": "No"
+                                }
+                            }
+                        ],
+                        "footer": "A Decider Protocol Poll",
+                        "ts": 123456789
+                    }
+                ]
             });
 
             break;
