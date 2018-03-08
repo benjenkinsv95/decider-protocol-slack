@@ -1,79 +1,74 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- ______    ______    ______   __  __    __    ______
- /\  == \  /\  __ \  /\__  _\ /\ \/ /   /\ \  /\__  _\
- \ \  __<  \ \ \/\ \ \/_/\ \/ \ \  _"-. \ \ \ \/_/\ \/
- \ \_____\ \ \_____\   \ \_\  \ \_\ \_\ \ \_\   \ \_\
- \/_____/  \/_____/    \/_/   \/_/\/_/  \/_/    \/_/
+Example Slack botkit project
 
+Read all the docs on botkit @ https://github.com/howdyai/botkit
+Read all the Slack API docs @ https://api.slack.com/ (especially the bit on interactive buttons)
 
- This is a sample Slack Button application that provides a custom
- Slash command.
+This project is all you need to get up and running with interactive messages
 
- This bot demonstrates many of the core features of Botkit:
+* Works with interactive buttons
+* Includes sample 'interactive_message_callback' method
+* Includes sample help method
+* Includes uptime method
+* Includes config file for tokens
+* Includes a method to get cat gifs on demand.
 
- *
- * Authenticate users with Slack using OAuth
- * Receive messages using the slash_command event
- * Reply to Slash command both publicly and privately
+To get your App up and running:
+    *Make sure you are using a Slack App and have a bot user set
+    *Plug your tokens and secrets into the config file (Found by managing your App here: https://api.slack.com)
+    *Make sure you have localtunnel running with the url set in your app credentials under redirect URI. (https://api.slack.com -> https://yoursubdomain.localtunnel.me/oauth)
+    *Make sure you have your Request URL for interactive messages set to https://yoursubdomain.localtunnel.me/slack/receive
+    *Run your bot with "node yourbot.js"
+    *Hit the URL "https://yoursubdomain.localtunnel.me/login" to add your bot to a team
+    *Direct message your bot "test button" to make sure buttons are working
+    *Invite your bot to a channel and have fun!
 
- # RUN THE BOT:
+Created by Christian Hapgood
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
- Create a Slack app. Make sure to configure at least one Slash command!
+// Have a remote json config file for holding tokens. add this file to your gitignore.
+var config = require('./config.json');
+process.env.token = config.token;
+process.env.clientId = config.clientId;
+process.env.clientSecret = config.clientSecret;
+process.env.port = config.port;
 
- -> https://api.slack.com/applications/new
-
- Run your bot from the command line:
-
- clientId=<my client id> clientSecret=<my client secret> PORT=3000 node bot.js
-
- Note: you can test your oauth authentication locally, but to use Slash commands
- in Slack, the app must be hosted at a publicly reachable IP or host.
-
-
- # EXTEND THE BOT:
-
- Botkit is has many features for building cool and useful bots!
-
- Read all about it here:
-
- -> http://howdy.ai/botkit
-
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-/* Uses the slack button feature to offer a real time bot to multiple teams */
-var Botkit = require('botkit');
-
-if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET || !process.env.PORT || !process.env.VERIFICATION_TOKEN) {
-    console.log('Error: Specify CLIENT_ID, CLIENT_SECRET, VERIFICATION_TOKEN and PORT in environment');
+if (!process.env.token) {
+    console.log('Error: Specify token in environment');
     process.exit(1);
 }
 
-var config = {}
-if (process.env.MONGOLAB_URI) {
-    var BotkitStorage = require('botkit-storage-mongo');
-    config = {
-        storage: BotkitStorage({mongoUri: process.env.MONGOLAB_URI}),
-    };
-} else {
-    config = {
-        json_file_store: './db_slackbutton_slash_command/',
-    };
+var Botkit = require('./node_modules/botkit/lib/Botkit.js');
+var os = require('os');
+var express = require('express');
+// Using a token to get user information. Generate a token here https://api.slack.com/docs/oauth-test-tokens
+var userToken = config.userToken;
+
+// Check for ENV variables - Required to be a slack app to use interactive buttons
+if (!process.env.clientId || !process.env.clientSecret || !process.env.port) {
+    console.log('Error: Specify clientId clientSecret and port in environment');
+    process.exit(1);
 }
 
-var controller = Botkit.slackbot(config).configureSlackApp(
+// Sample controller config - REQUIRED FOR INTERACTIVE BUTTONS
+var controller = Botkit.slackbot({
+                                     debug: false,
+                                     interactive_replies: true, // tells botkit to send button clicks into conversations
+                                     json_file_store: './db_slackbutton_bot/',
+                                 }).configureSlackApp(
     {
-        clientId: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        interactive_replies: true,
-        // scopes: ['commands', 'bot', 'chat:write', 'post']
-        scopes: ['commands','incoming-webhook','team:read','users:read','users.profile:read','channels:read','im:read','im:write','groups:read','emoji:read'],
+        clientId: process.env.clientId,
+        clientSecret: process.env.clientSecret,
+        // Set scopes as needed. https://api.slack.com/docs/oauth-scopes
+        scopes: ['commands', 'bot','incoming-webhook','team:read','users:read','users.profile:read','channels:read','im:read','im:write','groups:read','emoji:read','chat:write:bot'],
     }
 );
 
-controller.setupWebserver(process.env.PORT, function (err, webserver) {
-    controller.createHomepageEndpoint(controller.webserver);
+// Setup for the Webserver - REQUIRED FOR INTERACTIVE BUTTONS
+controller.setupWebserver(process.env.port,function(err,webserver) {
     controller.createWebhookEndpoints(controller.webserver);
-    controller.createOauthEndpoints(controller.webserver, function (err, req, res) {
+
+    controller.createOauthEndpoints(controller.webserver,function(err,req,res) {
         if (err) {
             res.status(500).send('ERROR: ' + err);
         } else {
@@ -82,9 +77,114 @@ controller.setupWebserver(process.env.PORT, function (err, webserver) {
     });
 });
 
+function arrayRemove(array, search_term) {
+    for (var i = array.length - 1; i >= 0; i--) {
+        if (array[i] === search_term) {
+            array.splice(i, 1);
+        }
+    }
+}
+
+function getUpdatedMembers(name, currentMembers, shouldAdd) {
+    var members = currentMembers.split(" ");
+    arrayRemove(members, name);
+    if(shouldAdd){
+        members.push(name)
+    }
+    return members.join(" ");
+}
+
+function getMessageAttachments(proposal, name, buttonValue, message) {
+    var agreeMembers = "";
+    var neutralMembers = "";
+    var disagreeMembers = "";
+    var hellNoMembers = "";
+    if(message !== undefined) {
+        var fields = JSON.parse(message.payload).original_message.attachments[0].fields;
+        agreeMembers = getUpdatedMembers(name, fields[0].value, buttonValue === "agree");
+        neutralMembers = getUpdatedMembers(name, fields[1].value, buttonValue === "neutral");
+        disagreeMembers = getUpdatedMembers(name, fields[2].value, buttonValue === "disagree");
+        hellNoMembers = getUpdatedMembers(name, fields[3].value, buttonValue === "abort");
+        proposal = JSON.parse(message.payload).original_message.attachments[0].title;
+    }
+
+    return {"attachments": [
+        {
+            "title": proposal,
+            callback_id: '123',
+            "color": "#009ACD",
+            replace_original: 'true',
+            'username': 'My bot',
+            "fields": [
+                {
+                    "title": ":+1: I agree with the proposal.",
+                    "value": agreeMembers,
+                    "short": false
+                },{
+                    "title": ":hand: I support the group's choice, but don't feel strongly either way.",
+                    "value": neutralMembers,
+                    "short": false
+                },
+                {
+                    "title": ":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.",
+                    "value": disagreeMembers,
+                    "short": false
+                },
+                {
+                    "title": ":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.",
+                    "value": hellNoMembers,
+                    "short": false
+                }
+            ],
+            "actions": [
+                {
+                    "name": "propose",
+                    "text": ":+1:",
+                    "type": "button",
+                    "style": "primary",
+                    "value": "agree"
+                },
+                {
+                    "name": "propose",
+                    "text": ":hand:",
+                    "type": "button",
+                    "value": "neutral"
+                },
+                {
+                    "name": "propose",
+                    "text": ":-1:",
+                    "type": "button",
+                    "style": "danger",
+                    "value": "disagree",
+                    "confirm": {
+                        "title": "Since you disagree with this proposal...",
+                        "text": "You should try creating the proposal with your changes!"
+                    }
+                },
+                {
+                    "name": "propose",
+                    "text": ":-1: :-1:",
+                    "style": "danger",
+                    "type": "button",
+                    "value": "abort",
+                    "confirm": {
+                        "title": "Are you sure?",
+                        "text": "Are there really no changes that would get you on board with the proposal's intent?",
+                        "ok_text": "Yes",
+                        "dismiss_text": "No"
+                    }
+                }
+            ],
+            "footer": "A Decider Protocol Poll",
+            "ts": 123456789
+        }
+    ]
+    };
+}
+
 controller.on('slash_command', function (slashCommand, message) {
     console.log("Slash command");
-
+    // slashCommand.replyPublic(message, "I'm afraid I don't know how to " + message.command + " yet.");
 
     switch (message.command) {
         case "/propose": //handle the `/echo` slash command. We might have others assigned to this app too!
@@ -92,7 +192,9 @@ controller.on('slash_command', function (slashCommand, message) {
             // Otherwise just echo back to them what they sent us.
 
             // but first, let's make sure the token matches!
-            if (message.token !== process.env.VERIFICATION_TOKEN) return; //just ignore it.
+            if (message.token !== process.env.token){
+                return; //just ignore it.
+            }
 
             // if no text was supplied, treat it as a help command
             if (message.text === "" || message.text === "help") {
@@ -113,143 +215,19 @@ controller.on('slash_command', function (slashCommand, message) {
                 proposal = "I propose " + proposal;
             }
 
-            var reply = "```/poll \"" + proposal + "\" \":+1: Yes, I agree.\" \":-1: No, but I have an idea for something we could change to get me to agree.\" \":hand: I support the group's choice, but don't feel strongly either way.\" \":-1::-1: No, and there are no changes that would make me agree.\"```";
-            slashCommand.replyPublic(message, reply);
+            proposal = proposal + "\n";
 
-            break;
-
-        case "/dev-propose": //handle the `/echo` slash command. We might have others assigned to this app too!
-            // The rules are simple: If there is no text following the command, treat it as though they had requested "help"
-            // Otherwise just echo back to them what they sent us.
-
-            // but first, let's make sure the token matches!
-            if (message.token !== process.env.VERIFICATION_TOKEN) return; //just ignore it.
-
-            // if no text was supplied, treat it as a help command
-            if (message.text === "" || message.text === "help") {
-                slashCommand.replyPrivate(message,
-                    "If you type a proposal, I'll give you the text to create a simple poll." +
-                    "Try typing `/propose I propose using Spring as a backend.` to see.");
-                return;
-            }
-
-            var proposal = message.text;
-            if(proposal.startsWith("\"")){
-                proposal = proposal.substring(1, message.text.length);
-            }
-            if(proposal.endsWith("\"")){
-                proposal = proposal.substring(0, message.text.length - 1);
-            }
-            if(!proposal.toLowerCase().startsWith("i propose")){
-                proposal = "I propose " + proposal;
-            }
-
-            var attachments = {"attachments": [
-            {
-                callback_id: '123',
-                "color": "#009ACD",
-                "title": "I propose something",
-                "text": "Choices",
-                replace_original: 'true',
-                'username': 'My bot',
-                "fields": [
-                    {
-                        "title": ":+1: I agree with the proposal.",
-                        "value": "@ben",
-                        "short": false
-                    },{
-                        "title": ":hand: I support the group's choice, but don't feel strongly either way.",
-                        "value": "@wesley @michael",
-                        "short": false
-                    },
-                    {
-                        "title": ":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.",
-                        "value": "@stephen",
-                        "short": false
-                    },
-                    {
-                        "title": ":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.",
-                        "value": "",
-                        "short": false
-                    }
-                ],
-                "actions": [
-                    {
-                        "name": "propose",
-                        "text": ":+1:",
-                        "type": "button",
-                        "style": "primary",
-                        "value": "agree"
-                    },
-                    {
-                        "name": "propose",
-                        "text": ":hand:",
-                        "type": "button",
-                        "value": "neutral"
-                    },
-                    {
-                        "name": "propose",
-                        "text": ":-1:",
-                        "type": "button",
-                        "style": "danger",
-                        "value": "disagree",
-                        "confirm": {
-                            "title": "It seems like you disagree with this proposal.",
-                            "text": "You should try creating the proposal with your changes!",
-                            "dismiss_text": "Ok"
-                        }
-                    },
-                    {
-                        "name": "propose",
-                        "text": ":-1: :-1:",
-                        "style": "danger",
-                        "type": "button",
-                        "value": "abort",
-                        "confirm": {
-                            "title": "Are you sure?",
-                            "text": "Are there really no changes that would get you on board with the proposal's intent?",
-                            "ok_text": "Yes",
-                            "dismiss_text": "No"
-                        }
-                    }
-                ],
-                "footer": "A Decider Protocol Poll",
-                "ts": 123456789
-            }
-        ]
-    };
-            slashCommand.reply(message, attachments);
-            // slashCommand.startConversation(message, function(err, convo) {
-            //     convo.ask(attachments);
-            // });
+            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", undefined));
 
             break;
         default:
             slashCommand.replyPublic(message, "I'm afraid I don't know how to " + message.command + " yet.");
 
     }
-})
-;
-
-// receive an interactive message, and reply with a message that will replace the original
-controller.on('interactive_message_callback', function(bot, message) {
-    console.log("Interactive message");
-
-    // check message.actions and message.callback_id to see what action to take...
-
-    switch(message.callback_id) {
-        case "123":
-            bot.replyInteractive(message, "Button works!");
-            break;
-        // Add more cases here to handle for multiple buttons
-        default:
-            // For debugging
-            bot.replyInteractive(message, 'The callback ID has not been defined');
-    }
-
 });
 
 
+// Method for when the bot is added to a team
 controller.on('create_bot',function(bot,config) {
     if (_bots[bot.config.token]) {
         // already online! do nothing.
@@ -260,7 +238,7 @@ controller.on('create_bot',function(bot,config) {
             }
             bot.startPrivateConversation({user: config.createdBy},function(err,convo) {
                 if (err) {
-                    console.log(err);
+                    console.log("ERROR" + JSON.stringify(err));
                 } else {
                     convo.say('I am a bot that has just joined your team');
                     convo.say('You must now /invite me to a channel so that I can be of use!');
@@ -287,6 +265,36 @@ function trackBot(bot) {
     _bots[bot.config.token] = bot;
 }
 
+//REQUIRED FOR INTERACTIVE BUTTONS
+// This controller method handles every interactive button click
+controller.on('interactive_message_callback', function(bot, message) {
+    // These 3 lines are used to parse out the id's
+    var ids = message.callback_id.split(/\-/);
+    var user_id = ids[0];
+    var item_id = ids[1];
+    console.log("Interactive message");
+    console.log(message);
+
+    var callbackId = message.callback_id;
+
+    // Example use of Select case method for evaluating the callback ID
+    // Callback ID 123 for weather bot webcam
+    switch(callbackId) {
+        case "123":
+            bot.api.users.info({user: message.user}, (error, response) => {
+                let {name, real_name} = response.user;
+            var referenceUser = "<@" + message.user + ">";
+            bot.replyInteractive(message, getMessageAttachments(undefined, referenceUser, message.actions[0].value, message));
+    });
+
+    break;
+    // Add more cases here to handle for multiple buttons
+default:
+    // For debugging
+    bot.reply(message, 'The callback ID has not been defined');
+}
+});
+
 //REQUIRED FOR INTERACTIVE MESSAGES
 controller.storage.teams.all(function(err,teams) {
 
@@ -301,7 +309,8 @@ controller.storage.teams.all(function(err,teams) {
                 if (err) {
                     console.log('Error connecting bot to Slack:',err);
                 } else {
-                    console.log(bot);
+                    console.log("INFO");
+                    // console.log(bot);
                     trackBot(bot);
                 }
             });
