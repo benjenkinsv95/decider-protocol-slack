@@ -95,11 +95,13 @@ function getUpdatedMembers(name, currentMembers, shouldAdd) {
 }
 
 function getMessageAttachments(proposal, name, buttonValue, message) {
+    var isFirstMessage = proposal !== undefined;
+
     var agreeMembers = "";
     var neutralMembers = "";
     var disagreeMembers = "";
     var hellNoMembers = "";
-    if(message !== undefined) {
+    if(isFirstMessage) {
         var fields = JSON.parse(message.payload).original_message.attachments[0].fields;
         agreeMembers = getUpdatedMembers(name, fields[0].value, buttonValue === "agree");
         neutralMembers = getUpdatedMembers(name, fields[1].value, buttonValue === "neutral");
@@ -114,24 +116,25 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
             callback_id: '123',
             "color": "#009ACD",
             replace_original: 'true',
+            delete_original: isFirstMessage,
             'username': 'My bot',
             "fields": [
                 {
-                    "title": ":+1: I agree with the proposal.",
+                    "title": ":+1: Yes, I agree.",
                     "value": agreeMembers,
                     "short": false
                 },{
-                    "title": ":hand: I support the group's choice, but don't feel strongly either way.",
+                    "title": ":hand: I support it.",
                     "value": neutralMembers,
                     "short": false
                 },
                 {
-                    "title": ":-1: I disagree with the proposal, but I have an idea for something we could change that would make me agree.",
+                    "title": ":-1: No, I disagree.",
                     "value": disagreeMembers,
                     "short": false
                 },
                 {
-                    "title": ":-1: :-1: I disagree with the proposal, and there are no changes that would make me agree.",
+                    "title": ":-1: :-1: I am an absolute no. I won’t get in.",
                     "value": hellNoMembers,
                     "short": false
                 }
@@ -157,8 +160,8 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                     "style": "danger",
                     "value": "disagree",
                     "confirm": {
-                        "title": "Since you disagree with this proposal...",
-                        "text": "You should try creating the proposal with your changes!"
+                        "title": "What will it take to get you in?",
+                        "text": "Please tell the proposer what changes to the proposal are needed to make you agree."
                     }
                 },
                 {
@@ -169,13 +172,13 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                     "value": "abort",
                     "confirm": {
                         "title": "Are you sure?",
-                        "text": "Are there really no changes that would get you on board with the proposal's intent?",
+                        "text": "Use with great discretion and as infrequently as possible. If you have a better idea, please share it.",
                         "ok_text": "Yes",
                         "dismiss_text": "No"
                     }
                 }
             ],
-            "footer": "A Decider Protocol Poll",
+            "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More>",
             "ts": 123456789
         }
     ]
@@ -217,7 +220,7 @@ controller.on('slash_command', function (slashCommand, message) {
 
             proposal = proposal + "\n";
 
-            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", undefined));
+            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", message));
 
             break;
         default:
