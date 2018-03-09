@@ -170,7 +170,7 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                     "value": "abort",
                     "confirm": {
                         "title": "Are you sure?",
-                        "text": "Use with great discretion and as infrequently as possible. If you have a better idea, please share it.",
+                        "text": "Use this option with great discretion and as infrequently as possible. If you have a better idea, please share it.",
                         "ok_text": "Yes",
                         "dismiss_text": "No"
                     }
@@ -217,8 +217,9 @@ controller.on('slash_command', function (slashCommand, message) {
 
             proposal = proposal + "\n";
 
-            message.delete_original = true;
-            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", undefined));
+            var newMessage = getMessageAttachments(proposal, undefined, "", undefined);
+            newMessage.delete_original = true;
+            slashCommand.replyPublic(message, newMessage);
 
             break;
         default:
