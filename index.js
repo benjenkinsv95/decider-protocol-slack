@@ -282,11 +282,8 @@ controller.on('interactive_message_callback', function(bot, message) {
     // Callback ID 123 for weather bot webcam
     switch(callbackId) {
         case "123":
-            bot.api.users.info({user: message.user}, (error, response) => {
-                let {name, real_name} = response.user;
-            var referenceUser = "<@" + message.user + ">";
-            bot.replyInteractive(message, getMessageAttachments(undefined, referenceUser, message.actions[0].value, message));
-    });
+    var referenceUser = "<@" + message.user + ">";
+    bot.replyInteractive(message, getMessageAttachments(undefined, referenceUser, message.actions[0].value, message));
 
     break;
     // Add more cases here to handle for multiple buttons
