@@ -108,7 +108,7 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
         proposal = JSON.parse(message.payload).original_message.attachments[0].title;
     }
 
-    return { "delete_original": proposal !== undefined,
+    return {
         "attachments": [
         {
             "title": proposal,
@@ -176,8 +176,7 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                     }
                 }
             ],
-            "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More>",
-            "ts": 123456789
+            "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More>"
         }
     ]
     };
@@ -218,7 +217,7 @@ controller.on('slash_command', function (slashCommand, message) {
 
             proposal = proposal + "\n";
 
-
+            message.delete_original = true;
             slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", undefined));
 
             break;
