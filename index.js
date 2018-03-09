@@ -176,7 +176,7 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                     }
                 }
             ],
-            "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More>"
+            "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More :information_source:>"
         }
     ]
     };
