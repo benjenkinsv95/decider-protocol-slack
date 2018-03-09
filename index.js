@@ -95,13 +95,11 @@ function getUpdatedMembers(name, currentMembers, shouldAdd) {
 }
 
 function getMessageAttachments(proposal, name, buttonValue, message) {
-    var isFirstMessage = proposal !== undefined;
-
     var agreeMembers = "";
     var neutralMembers = "";
     var disagreeMembers = "";
     var hellNoMembers = "";
-    if(isFirstMessage) {
+    if(message !== undefined) {
         var fields = JSON.parse(message.payload).original_message.attachments[0].fields;
         agreeMembers = getUpdatedMembers(name, fields[0].value, buttonValue === "agree");
         neutralMembers = getUpdatedMembers(name, fields[1].value, buttonValue === "neutral");
@@ -110,13 +108,13 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
         proposal = JSON.parse(message.payload).original_message.attachments[0].title;
     }
 
-    return {"attachments": [
+    return { "delete_original": proposal !== undefined,
+        "attachments": [
         {
             "title": proposal,
             callback_id: '123',
             "color": "#009ACD",
             replace_original: 'true',
-            delete_original: isFirstMessage,
             'username': 'My bot',
             "fields": [
                 {
@@ -220,7 +218,8 @@ controller.on('slash_command', function (slashCommand, message) {
 
             proposal = proposal + "\n";
 
-            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", message));
+
+            slashCommand.replyPublic(message, getMessageAttachments(proposal, undefined, "", undefined));
 
             break;
         default:
