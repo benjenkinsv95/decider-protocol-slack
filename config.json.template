@@ -1,0 +1,7 @@
+{
+    "clientId":"xxx.xxx",
+    "clientSecret":"xxxxxx",
+    "token":"xxxxx",
+    "port":"8765",
+    "userToken":"xxxx"
+}
