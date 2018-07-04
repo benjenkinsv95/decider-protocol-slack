@@ -2,6 +2,6 @@
     "clientId":"xxx.xxx",
     "clientSecret":"xxxxxx",
     "token":"xxxxx",
-    "port":"8765",
+    "port":"80",
     "userToken":"xxxx"
 }
