@@ -25,6 +25,9 @@ On the production machine
 ### Prerequisites
 This application requires [the following prerequisites](https://github.com/benjenkinsv95/personal-website/blob/master/docker_nginx_prerequisites.md) so that it can be hosted with a domain name using a secure HTTPS encryption.
 
+#### Add Subdomain to DNS settings
+Add the subdomain you are deploying to, to your dns settings.
+
 ### Run App in Production
 Finally, run the application from DockerHub. Pulls down a fresh copy and specifies what the domain name should be.
 ``` \
