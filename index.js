@@ -106,7 +106,7 @@ function getMessageAttachments(proposal, name, buttonValue, message) {
                         }
                     }
                 ],
-                "footer": "The Decider Protocol | <https://liveingreatness.com/core-protocols/decider/|Learn More :information_source:>"
+                "footer": "The Decider Protocol | <https://github.com/benjenkinsv95/decider-protocol-slack/blob/master/decider-protocol.md|Learn More :information_source:>"
             }
         ],
         "delete_original": false
